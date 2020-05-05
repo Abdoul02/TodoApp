@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Todo App</string>
+
+    <string name="done_percentage">Progress %1$s</string>
+    <string name="title">Work things to complete</string>
+    <string name="done">Done</string>
+    <string name="task_title">Task title</string>
+    <string name="task_description">Description</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_task">Add</string>
+    <string name="no_task">You currently have no task, \nclick button below to start adding</string>
+</resources>

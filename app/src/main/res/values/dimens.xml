@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="recycle_view_medium">18sp</dimen>
+    <dimen name="progress_bar_height">3dp</dimen>
+    <dimen name="limit_progress_size">6dp</dimen>
+    <dimen name="radio_bottom_margin">12dp</dimen>
+    <dimen name="font_size_progress_indicator">11dp</dimen>
+</resources>
