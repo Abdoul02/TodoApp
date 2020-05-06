@@ -83,7 +83,7 @@ class MainFragment : Fragment() {
 
         //Main
         progressSeekBar = view.findViewById(R.id.progressSeekBar)
-        progressSeekBar.setIndicatorTextFormat("\${PROGRESS} %")
+        progressSeekBar.setIndicatorTextFormat("\${PROGRESS} % done")
         addFab = view.findViewById(R.id.addFab)
         emptyConstraintLayout = view.findViewById(R.id.clEmpty)
         populatedConstraintLayout = view.findViewById(R.id.mainConstraintLayout)
