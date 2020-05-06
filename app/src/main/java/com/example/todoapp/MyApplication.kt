@@ -6,6 +6,7 @@ import com.example.todoapp.di.component.ApplicationComponent
 import com.example.todoapp.di.component.DaggerApplicationComponent
 import com.example.todoapp.di.module.ContextModule
 import com.example.todoapp.di.module.DatabaseModule
+import com.example.todoapp.di.module.SharedPrefModule
 
 class MyApplication : Application() {
 
@@ -18,12 +19,15 @@ class MyApplication : Application() {
             .builder()
             .contextModule(ContextModule(this))
             .databaseModule(DatabaseModule(this))
+            .sharedPrefModule(SharedPrefModule(this))
             .build()
     }
 
     fun get(activity: Activity): MyApplication {
         return activity.application as MyApplication
     }
+
+
 
     fun getApplicationComponent(): ApplicationComponent? {
         return component

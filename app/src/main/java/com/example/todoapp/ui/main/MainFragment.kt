@@ -1,13 +1,15 @@
 package com.example.todoapp.ui.main
 
 import android.animation.Animator
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Paint
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Observer
@@ -20,17 +22,19 @@ import com.example.todoapp.R
 import com.example.todoapp.model.TaskModel
 import com.example.todoapp.other.TaskListAdapter
 import com.example.todoapp.other.ViewUtilities
+import com.example.todoapp.other.ViewUtilities.LAST_PERCENTAGE
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.warkiz.widget.IndicatorSeekBar
-import kotlinx.android.synthetic.main.main_fragment.*
 import javax.inject.Inject
 
 class MainFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
 
     private lateinit var progressSeekBar: IndicatorSeekBar
     private lateinit var addFab: FloatingActionButton
@@ -72,8 +76,6 @@ class MainFragment : Fragment() {
         val root = inflater.inflate(R.layout.main_fragment, container, false)
         initialiseViews(root)
         setUpListeners()
-        //animate(0f, 20f)
-
         return root
     }
 
@@ -104,7 +106,12 @@ class MainFragment : Fragment() {
     private fun animate(startValue: Float, endValue: Float) {
         progressSeekBar.max = 100f
 
-        ViewUtilities.animateCustomProgress(progressSeekBar, startValue, endValue)
+        ViewUtilities.animateCustomProgress(
+            progressSeekBar,
+            startValue,
+            endValue,
+            sharedPreferences
+        )
     }
 
     private fun setUpListeners() {
@@ -115,13 +122,13 @@ class MainFragment : Fragment() {
             addTask()
         }
         btnCancel.setOnClickListener {
-            addFab.isExpanded = !addFab.isExpanded
+            taskPageClosed()
         }
 
         checkAnimation.addAnimatorListener(object : Animator.AnimatorListener {
             override fun onAnimationRepeat(animation: Animator?) {}
             override fun onAnimationEnd(animation: Animator?) {
-                addFab.isExpanded = !addFab.isExpanded
+                taskPageClosed()
             }
 
             override fun onAnimationCancel(animation: Animator?) {}
@@ -201,7 +208,8 @@ class MainFragment : Fragment() {
                 viewModel.completedTask.observe(fragmentActivity, Observer { completedTasks ->
                     completedTasks?.let { completedList ->
                         val percentage = viewModel.getPercentage(tasks.size, completedList.size)
-                        animate(0f, percentage.toFloat())
+                        val lastPercentage = sharedPreferences.getFloat(LAST_PERCENTAGE, 0f)
+                        animate(lastPercentage, percentage.toFloat())
                     }
                 })
             }
@@ -216,11 +224,27 @@ class MainFragment : Fragment() {
         val description = edtDescription.text.toString()
         if (ViewUtilities.validateInput(title, description)) {
             val task = TaskModel(id = null, name = title, description = description, status = 0)
+            dismissKeyBoard()
+            checkAnimation.visibility = View.VISIBLE
             viewModel.insertUpdateTask(task)
             checkAnimation.playAnimation()
         } else {
             showMessage("Please add both title and description")
         }
+    }
+
+    private fun dismissKeyBoard() {
+        val inputManager =
+            activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        inputManager?.hideSoftInputFromWindow(btnSaveTask.windowToken, 0)
+    }
+
+    private fun taskPageClosed() {
+        addFab.isExpanded = !addFab.isExpanded
+        edtDescription.setText("")
+        edtTitle.setText("")
+        checkAnimation.clearAnimation()
+        checkAnimation.visibility = View.INVISIBLE
     }
 
     private fun showMessage(message: String) {
